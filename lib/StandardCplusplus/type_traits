@@ -1,0 +1,230 @@
+/*	Copyright (C) 2005 Garrett A. Kajmowicz
+
+	This file is part of the uClibc++ Library.
+	This library is free software; you can redistribute it and/or
+	modify it under the terms of the GNU Lesser General Public
+	License as published by the Free Software Foundation; either
+	version 2.1 of the License, or (at your option) any later version.
+
+	This library is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+	Lesser General Public License for more details.
+
+	You should have received a copy of the GNU Lesser General Public
+	License along with this library; if not, write to the Free Software
+	Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+*/
+
+#include <basic_definitions>
+#include <string.h>
+#include <exception>
+#include <char_traits>
+
+#ifndef __HEADER_TYPE_TRAITS
+#define __HEADER_TYPE_TRAITS 1
+
+#pragma GCC visibility push(default)
+
+namespace std{
+    #define _DEFINE_SPEC_0_HELPER                          \
+        template<>
+
+    #define _DEFINE_SPEC_1_HELPER                          \
+        template<typename _Tp>
+
+    #define _DEFINE_SPEC_2_HELPER                          \
+        template<typename _Tp, typename _Cp>
+
+    #define _DEFINE_SPEC(_Order, _Trait, _Type, _Value)    \
+        _DEFINE_SPEC_##_Order##_HELPER                     \
+        struct _Trait<_Type> : public integral_constant<bool, _Value> { };
+
+	struct _UCXXEXPORT __true_type{};
+	struct _UCXXEXPORT __false_type{};
+
+	template <class I> class _UCXXEXPORT __is_integer{
+	public:
+		typedef __false_type value;
+	};
+
+	template <> class _UCXXEXPORT __is_integer <unsigned int>{
+	public:
+		typedef __true_type value;
+	};
+
+	template <> class _UCXXEXPORT __is_integer <signed int>{
+	public:
+		typedef __true_type value;
+	};
+
+	template <> class _UCXXEXPORT __is_integer <short unsigned int>{
+	public:
+		typedef __true_type value;
+	};
+
+	template <> class _UCXXEXPORT __is_integer <short signed int>{
+	public:
+		typedef __true_type value;
+	};
+
+	template <> class _UCXXEXPORT __is_integer <char>{
+	public:
+		typedef __true_type value;
+	};
+
+	template <> class _UCXXEXPORT __is_integer <signed char>{
+	public:
+		typedef __true_type value;
+	};
+
+	template <> class _UCXXEXPORT __is_integer <unsigned char>{
+	public:
+		typedef __true_type value;
+	};
+
+	template <> class _UCXXEXPORT __is_integer <long unsigned int>{
+	public:
+		typedef __true_type value;
+	};
+
+	template <> class _UCXXEXPORT __is_integer <long signed int>{
+	public:
+		typedef __true_type value;
+	};
+
+	/// remove_reference
+	template<typename _Tp>
+	struct remove_reference {
+		typedef _Tp type;
+	};
+
+	template<typename _Tp>
+	struct remove_reference<_Tp&> {
+		typedef _Tp type;
+	};
+
+	template<typename _Tp>
+	struct remove_reference<_Tp&&> {
+		typedef _Tp type;
+	};
+
+	/// integral_constant
+	template<typename _Tp, _Tp __v>
+	struct integral_constant {
+		static constexpr _Tp                  value = __v;
+		typedef _Tp                           value_type;
+		typedef integral_constant<_Tp, __v>   type;
+		constexpr operator value_type() { return value; }
+    };
+
+	/// typedef for true_type
+	typedef integral_constant<bool, true>     true_type;
+
+	/// typedef for false_type
+	typedef integral_constant<bool, false>    false_type;
+
+	/// is_lvalue_reference
+	template<typename>
+	struct is_lvalue_reference : public false_type { };
+
+	template<typename _Tp>
+	struct is_lvalue_reference<_Tp&> : public true_type { };
+
+	/// Member introspection.
+
+	/// is_trivial
+	template<typename _Tp>
+	struct is_trivial
+	: public integral_constant<bool, __is_trivial(_Tp)>
+	{ };
+
+	/// is_standard_layout
+	template<typename _Tp>
+	struct is_standard_layout
+	: public integral_constant<bool, __is_standard_layout(_Tp)>
+	{ };
+
+	/// is_pod
+	// Could use is_standard_layout && is_trivial instead of the builtin.
+	template<typename _Tp>
+	struct is_pod
+	: public integral_constant<bool, __is_pod(_Tp)>
+	{ };
+
+	// Define a nested type if some predicate holds.
+	// Primary template.
+	/// enable_if
+	template<bool, typename _Tp = void>
+	struct enable_if 
+	{ };
+
+	// Partial specialization for true.
+	template<typename _Tp>
+	struct enable_if<true, _Tp>
+	{ typedef _Tp type; };
+
+// -------------
+  // const-volatile modifications [4.7.1].
+
+  /// remove_const
+  template<typename _Tp>
+    struct remove_const
+    { typedef _Tp     type; };
+
+  template<typename _Tp>
+    struct remove_const<_Tp const>
+    { typedef _Tp     type; };
+  
+  /// remove_volatile
+  template<typename _Tp>
+    struct remove_volatile
+    { typedef _Tp     type; };
+
+  template<typename _Tp>
+    struct remove_volatile<_Tp volatile>
+    { typedef _Tp     type; };
+
+  /// remove_cv
+  template<typename _Tp>
+    struct remove_cv
+    {
+      typedef typename
+      remove_const<typename remove_volatile<_Tp>::type>::type     type;
+    };
+
+  template<typename>
+    struct __is_pointer_helper
+    : public false_type { };
+  _DEFINE_SPEC(1, __is_pointer_helper, _Tp*, true)
+
+  /// is_pointer
+  template<typename _Tp>
+    struct is_pointer
+    : public integral_constant<bool, (__is_pointer_helper<typename
+				      remove_cv<_Tp>::type>::value)>
+    { };
+
+  /// add_const
+  template<typename _Tp>
+    struct add_const
+    { typedef _Tp const     type; };
+   
+  /// add_volatile
+  template<typename _Tp>
+    struct add_volatile
+    { typedef _Tp volatile     type; };
+  
+  /// add_cv
+  template<typename _Tp>
+    struct add_cv
+    {
+      typedef typename
+      add_const<typename add_volatile<_Tp>::type>::type     type;
+    };
+}
+
+#pragma GCC visibility pop
+
+#endif
+
