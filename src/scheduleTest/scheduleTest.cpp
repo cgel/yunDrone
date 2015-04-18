@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <iterator>
-#include <Scheduler.hpp>
+#include <Scheduler.h>
 
 using namespace std;
 
