@@ -1,10 +1,7 @@
-#include <Arduino.h>
 #include <StandardCplusplus.h>
 #include <serstream>
-#include <string>
-#include <vector>
-#include <iterator>
 #include <Scheduler.h>
+#include <Arduino.h>
 
 using namespace std;
 
