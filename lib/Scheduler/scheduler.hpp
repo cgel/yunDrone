@@ -1,6 +1,6 @@
 #include <vector>
 
-enum Frequency { 100hr, 50hr, 10hr, 1hr, .1hr };
+enum Frequency { _100hr, _50hr, _10hr, _1hr, _0.1hr };
 typedef std::vector<Process *>::Iterator pid_t;
 
 // pid here means process identifier
@@ -36,4 +36,10 @@ class Scheduler {
 
 	private:
 	std::vector<Process *> Processes;
+	short int _0.1hr_count;
+	short int _1hr_count;
+	short int _10hr_count;
+	short int _50hr_count;
+	unsigned long time;
+	unsigned long last_call_time;
 }
