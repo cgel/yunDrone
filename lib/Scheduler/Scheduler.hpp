@@ -1,9 +1,15 @@
 #include <vector>
 
-enum Frequency { _100hr, _50hr, _10hr, _1hr, _0.1hr };
-typedef std::vector<Process *>::Iterator pid_t;
+enum Frequency { _100hr = 0, _50hr = 1, _10hr = 2, _1hr = 3, _0.1hr = 4 };
+
+// A list is used because the iterators are never invalidated
+typedef std::list<Process *>::Iterator pid_t;
 
 // pid here means process identifier
+class pid_t {
+	const Frequency first;
+	const short int second;
+}
 
 // derive from this class to create a usable process
 class Process {
@@ -13,13 +19,7 @@ class Process {
 
 	virtual void update(); //The main function that must be defined when deriving this class.
 
-	pid_t getPid() const {return pid;};
-	
-	void setPid(pid_t p) {pid = p;}; // ony to be used by class Scheduler
-
 	private:
-	pid_t pid = -1; // default pid not valid
-	const Frequency freq;
 };
 
 
@@ -35,7 +35,10 @@ class Scheduler {
 	void update();
 
 	private:
-	std::vector<Process *> Processes;
+
+	// processes is a vector of iterators
+	std::array<std::list<Process *>, 5> processes;
+
 	short int _0.1hr_count;
 	short int _1hr_count;
 	short int _10hr_count;
