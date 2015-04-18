@@ -2,9 +2,11 @@
 bin/*/
 *build-*
 *~
-build-tmp/
 Makefile
+build-tmp/
 doc/
 debug.txt
 .ycm_extra_conf.pyc
 .ropeproject
+*.swp
+*.swo

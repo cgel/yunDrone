@@ -1,0 +1,43 @@
+#include <scheduler.hpp>
+
+class blinker derived Process
+	blinker() make led usable
+	~blinker() turn off led
+	void update if last time bright now dark, else bright
+
+
+class controller derived Process
+	...
+
+class coms derived Process
+	...
+
+
+// will be able schedule processes
+Scheduler sys
+
+FlightManager fm
+
+
+void setup()
+	blinker * redBlink = new blinker();
+	redBlink.
+	pid_t sys_pid = sys.addProcess(new blinker, 10hr);
+	pid_t sys_pid = sys.addProcess(new FlightManager, 50hr);
+
+	fm.initSensors();
+
+	coms.connect();
+	while (!coms.checkConnection())	
+	{
+
+	}
+
+	bool check_res = fm.check();
+	if (!check_res)	coms.send("checks not passed");
+
+	sys.killProcess(sys_pid);
+	
+
+void loop()
+	sys.update()	
