@@ -1,18 +1,19 @@
 #ifndef __SCHEDULER_H
 #define __SCHEDULER_H
 
+#include <StandardCplusplus.h>
 #include <list>
 #include <iterator>
-#include <StandardCplusplus.h>
 #include <iterator>
+#include <Arduino.h>
 
 enum Frequency { _100hr, _50hr, _10hr, _1hr, _0p1hr};
 
 // derive from this class to create a usable process
 class Process {
 	public:
-	Process();
-	virtual ~Process();
+	Process() {};
+	//virtual ~Process() = 0;
 
 	virtual void update(); //The main function that must be defined when deriving this class.
 
