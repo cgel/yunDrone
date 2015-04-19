@@ -1,3 +1,6 @@
+#ifndef __SENSOR_H
+#define __SENSOR_H
+
 #include "I2Cdev.h"
 #include "Scheduler.h"
 
@@ -46,3 +49,6 @@ class Sensors: public Process
 	VectorFloat gravity;    // [x, y, z]            gravity vector
 	float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
 };
+
+
+#endif

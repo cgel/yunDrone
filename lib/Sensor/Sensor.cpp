@@ -1,3 +1,5 @@
+#include <Sensor.h>
+
 bool Sensors::init()
 {
 	Fastwire::setup(400, true);
