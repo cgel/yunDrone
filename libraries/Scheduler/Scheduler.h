@@ -23,7 +23,11 @@ class Process {
 // pid here means process identifier
 class pid_t {
 	public:
+	pid_t(){};
 	pid_t(Frequency f, std::list<Process*>::iterator s): first(f), second(s) {};
+
+	pid_t& operator=(const pid_t&);
+	
 	Frequency first;
 	std::list<Process*>::iterator second;
 };
@@ -40,7 +44,7 @@ class Scheduler {
 	void update();
 
 	private:
-
+	void call_process_list(std::list<Process*>);
 	// processes is an array of vector of iterators (the vectors gup the iteratos of the same freq)
 	std::list<Process*> processes[5];
 

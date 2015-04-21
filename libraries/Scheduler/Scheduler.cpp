@@ -1,4 +1,10 @@
-#include <Scheduler.h>
+#include <Scheduler.h> 
+
+pid_t& pid_t::operator=(const pid_t& p)
+{
+	first = p.first;
+	second = p.second;
+}
 
 // CLASS SCHEDULER
 Scheduler::Scheduler()	
@@ -44,47 +50,41 @@ void Scheduler::update()
 		_10hr_count++;
 		_50hr_count++;
 
-		for (auto i : processes[_100hr])
-		{
-			i->update();	
-		}
 
-		if (_50hr_count == 2)  // 2/100  = 1/50
+		call_process_list(processes[_100hr]);
+
+		if (_50hr_count == 2)  // 2/100  = 1/50 time to call the 50hr processes
 		{
-			for (auto i : processes[_50hr])
-			{
-				i->update();	
-			}
+			call_process_list(processes[_50hr]);
 			_50hr_count = 0;
 		}
 
 		if (_10hr_count == 10) // 10/100  = 1/10
 		{
-			for (auto i : processes[_10hr])
-			{
-				i->update();	
-			}
+			call_process_list(processes[_10hr]);
 			_10hr_count = 0;
 		} 
 
 		if (_1hr_count == 100) // 100/100  = 1
 		{
-			for (auto i : processes[_1hr])
-			{
-				i->update();	
-			}
+			call_process_list(processes[_1hr]);
 			_1hr_count = 0;
 		} 
 
 		if (_0p1hr_count == 1000) // 1000/100  = 0.1
 		{
-			for (auto i : processes[_0p1hr])
-			{
-				i->update();	
-			}
+			call_process_list(processes[_0p1hr]);
 			_0p1hr_count = 0;
 		}
 
 		last_call_time = time;
+	}
+}
+
+void Scheduler::call_process_list(std::list<Process*> pr_lst)
+{
+	for (std::list<Process*>::iterator i =  pr_lst.begin(); i != pr_lst.end(); i++)
+	{
+		(*i)->update();	
 	}
 }
