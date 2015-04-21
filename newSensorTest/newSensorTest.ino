@@ -2,6 +2,7 @@
 #include <serstream>
 #include <Wire.h>
 #include <I2Cdev.h>
+#include "Scheduler.h"
 #include <Arduino.h>
 #include "Sensor.h"
 #include "MPU6050.h"
@@ -16,23 +17,25 @@ namespace std
   ohserialstream cout(Serial);
 }
 
-Sensor sens;
+Scheduler sys;
+Sensor* sens;
 
 void setup(void)
 {
 	Serial.begin(57600);
 	cout << "Starting sensors demo" << endl;
-
-	bool sensorState = sens.sensorInit();	
 	//sensor return 0 if everything is ok
-	if(!sensorState)
+	if(!sens->init())
 	{
 		cout << "Sensors have been initialized" << endl;
+		sys.addProcess(sens, _100hr);
 	}
 	else cout << "Sensors could not be initialized" << endl;
 }
 
 void loop(void)
 {
-	sens.sensorUpdate();
+	sys.update();
 }
+
+// vim:cin:ai:sts=2 sw=2 ft=cpp

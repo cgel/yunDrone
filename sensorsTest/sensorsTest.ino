@@ -1,12 +1,11 @@
 #include <StandardCplusplus.h>
 #include <serstream>
-#include <string>
-#include "Sensor.h"
-#include "I2Cdev.h"
-#include "Scheduler.h"
-#include "MPU6050_6Axis_MotionApps20.h"
+#include <Wire.h>
+#include <I2Cdev.h>
 #include "Scheduler.h"
 #include <Arduino.h>
+#include "Sensor.h"
+#include "MPU6050.h"
 
 using namespace std;
 
@@ -19,7 +18,7 @@ namespace std
 }
 
 Scheduler sys;
-Sensors sens;
+Sensors* sens;
 
 class Writer: public Process {
 	public:
@@ -28,7 +27,7 @@ class Writer: public Process {
 
 	void update() 
 	{
-		float ypr[] = sens.get_ypr();
+		float* ypr = sens->get_ypr();
 		cout << "-- " << ypr[0] << " -- " << ypr[1] << " -- " << ypr[2] << " --"<< endl;
 	};
 };
@@ -38,9 +37,12 @@ Writer* w = new Writer();
 void setup(void)
 {
 	Serial.begin(57600);
-	if(sens.init())
+	cout << "Starting sensors demo" << endl;
+	//sensor return 0 if everything is ok
+	if(!sens->init())
 	{
-		 cout << "Starting sensors demo" << endl;
+		cout << "Sensors have been initialized" << endl;
+		sys.addProcess(sens, _100hr);
 		sys.addProcess(w, _10hr);
 	}
 	else cout << "Sensors could not be initialized" << endl;
