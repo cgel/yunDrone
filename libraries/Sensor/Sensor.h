@@ -2,7 +2,6 @@
 #include "I2Cdev.h"
 
 #include "MPU6050_6Axis_MotionApps20.h"
-//#include "MPU6050.h" // not necessary if using MotionApps include file
 
 // Arduino Wire library is required if I2Cdev I2CDEV_ARDUINO_WIRE implementation
 // is used in I2Cdev.h
@@ -15,29 +14,24 @@ void dmpDataReady() {
     mpuInterrupt = true;
 }
 
-
 class Sensor : public Process {
 public:
+	Sensor(): mpu() {}
+
 	bool init() {
 		// join I2C bus (I2Cdev library doesn't do this automatically)
 		#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
 			Wire.begin();
-			TWBR = 24; // 400kHz I2C clock (200kHz if CPU is 8MHz)
+			TWBR = 12; // 400kHz I2C clock (200kHz if CPU is 8MHz)
 		#elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
 			Fastwire::setup(400, true);
 		#endif
-
-		Serial.begin(115200);
-		while (!Serial); // wait for Leonardo enumeration, others continue immediately
 
 		// initialize device
 		mpu.initialize();
 
 		// load and configure the DMP
-		devStatus = mpu.dmpInitialize();
-		Serial.print("The device status is: ");
-		Serial.print(devStatus);
-		Serial.print("\n");
+		// devStatus = mpu.dmpInitialize(); // variable usefull for debuging
 
 		// supply your own gyro offsets here, scaled for min sensitivity
 		mpu.setXGyroOffset(220);
@@ -69,50 +63,61 @@ public:
 		}
 	}
 
-	void update() {
-		// if programming failed, don't try to do anything
-		if (!dmpReady) return;
+void update() {
+	Serial.println(millis());
+	// if programming failed, don't try to do anything
+	if (!dmpReady) return;
 
-		// wait for MPU interrupt or extra packet(s) available
-		while (!mpuInterrupt && fifoCount < packetSize) {
-		}
+	// if there was not an interrupt there is nothing to do
+	if (!mpuInterrupt) return;
 
-		// reset interrupt flag and get INT_STATUS byte
-		mpuInterrupt = false;
-		mpuIntStatus = mpu.getIntStatus();
+	
 
-		// get current FIFO count
-		fifoCount = mpu.getFIFOCount();
+	// reset interrupt flag and get INT_STATUS byte
+	mpuInterrupt = false;
+	mpuIntStatus = mpu.getIntStatus();
+	Serial.println(F("a"));
 
-		// check for overflow (this should never happen unless our code is too inefficient)
-		if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
-			// reset so we can continue cleanly
-			mpu.resetFIFO();
-			Serial.println(F("FIFO overflow!"));
+	// get current FIFO count
+	fifoCount = mpu.getFIFOCount();
+	Serial.println(F("b"));
 
-		// otherwise, check for DMP data ready interrupt (this should happen frequently)
-		} else if (mpuIntStatus & 0x02) {
-			// wait for correct available data length, should be a VERY short wait
-			while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
+	// check for overflow (this should never happen unless our code is too inefficient)
+	if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
+		// reset so we can continue cleanly
+		mpu.resetFIFO();
+		Serial.println(F("FIFO overflow!"));
 
+	// otherwise, check for DMP data ready interrupt (this should happen frequently)
+	} else if (mpuIntStatus & 0x02) {
+		Serial.println(F("c"));
+		// if the fifo does not contain the necessary data will read next update
+		if (fifoCount < packetSize)Serial.println(F("fifoc is to small")); return;
+
+		// if there are more than on packet will read all of them and keep the newest
+		while (fifoCount >= packetSize)
+		{
 			// read a packet from FIFO
+			Serial.println(F("d"));
 			mpu.getFIFOBytes(fifoBuffer, packetSize);
-			
+
 			// track FIFO count here in case there is > 1 packet available
 			// (this lets us immediately read more without waiting for an interrupt)
 			fifoCount -= packetSize;
-
-			// display Euler angles in degrees
-			mpu.dmpGetQuaternion(&q, fifoBuffer);
-			mpu.dmpGetGravity(&gravity, &q);
-			mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-			Serial.print("ypr\t");
-			Serial.print(ypr[0] * 180/M_PI);
-			Serial.print("\t");
-			Serial.print(ypr[1] * 180/M_PI);
-			Serial.print("\t");
-			Serial.println(ypr[2] * 180/M_PI);
+			//fifoCount -= mpu.getFIFOCount(); // It is slower than subtracting the packet size, but in case new data comes in it will allow to read it.
 		}
+		Serial.println(F("e"));
+		// Update Quaternion, Euler angles and Yay Pich Roll angles
+		mpu.dmpGetQuaternion(&q, fifoBuffer);
+		mpu.dmpGetGravity(&gravity, &q);
+		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+	}
+	Serial.println(F("q"));
+}
+
+	float* get_ypr()
+	{
+		return ypr;
 	}
 
 private:

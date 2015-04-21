@@ -32,7 +32,7 @@ Helloer* h3 = new Helloer("-- -- xx");
 
 void setup(void)
 {
-	Serial.begin(57600);
+	Serial.begin(115200);
 
 	cout << "Starting Scheduler demo" << endl;
 

@@ -18,7 +18,7 @@ namespace std
 }
 
 Scheduler sys;
-Sensors* sens;
+Sensor* sens = new Sensor();
 
 class Writer: public Process {
 	public:
