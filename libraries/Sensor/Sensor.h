@@ -9,11 +9,6 @@
     #include "Wire.h"
 #endif
 
-volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
-void dmpDataReady() {
-    mpuInterrupt = true;
-}
-
 class Sensor : public Process {
 public:
 	Sensor(): mpu() {}
@@ -44,10 +39,6 @@ public:
 			// turn on the DMP, now that it's ready
 			mpu.setDMPEnabled(true);
 
-			// enable Arduino interrupt detection
-			attachInterrupt(0, dmpDataReady, RISING);
-			mpuIntStatus = mpu.getIntStatus();
-
 			// set our DMP Ready flag so the main loop() function knows it's okay to use it
 			dmpReady = true;
 
@@ -68,14 +59,6 @@ void update() {
 	// if programming failed, don't try to do anything
 	if (!dmpReady) return;
 
-	// if there was not an interrupt there is nothing to do
-	if (!mpuInterrupt) return;
-
-	
-
-	// reset interrupt flag and get INT_STATUS byte
-	mpuInterrupt = false;
-	mpuIntStatus = mpu.getIntStatus();
 	Serial.println(F("a"));
 
 	// get current FIFO count
@@ -83,18 +66,19 @@ void update() {
 	Serial.println(F("b"));
 
 	// check for overflow (this should never happen unless our code is too inefficient)
-	if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
+	if (fifoCount == 1024) {
 		// reset so we can continue cleanly
 		mpu.resetFIFO();
 		Serial.println(F("FIFO overflow!"));
 
-	// otherwise, check for DMP data ready interrupt (this should happen frequently)
-	} else if (mpuIntStatus & 0x02) {
+	} else if (fifoCount = 0) {
+		Serial.println(F("Empty buffer"));
+	} else if (fifoCount < packetSize) {
+		Serial.println(F("fifoc is to small"));
+	} else { // in this case the fifo has one or more packets
 		Serial.println(F("c"));
-		// if the fifo does not contain the necessary data will read next update
-		if (fifoCount < packetSize)Serial.println(F("fifoc is to small")); return;
 
-		// if there are more than on packet will read all of them and keep the newest
+		// if there are more than on packet, will read all of them and keep the newest
 		while (fifoCount >= packetSize)
 		{
 			// read a packet from FIFO
@@ -112,7 +96,6 @@ void update() {
 		mpu.dmpGetGravity(&gravity, &q);
 		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 	}
-	Serial.println(F("q"));
 }
 
 	float* get_ypr()

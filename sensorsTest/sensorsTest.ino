@@ -36,7 +36,7 @@ Writer* w = new Writer();
 
 void setup(void)
 {
-	Serial.begin(57600);
+	Serial.begin(115200);
 	cout << "Starting sensors demo" << endl;
 	//sensor return 0 if everything is ok
 	if(!sens->init())
@@ -52,5 +52,3 @@ void loop(void)
 {
 	sys.update();
 }
-
-// vim:cin:ai:sts=2 sw=2 ft=cpp
