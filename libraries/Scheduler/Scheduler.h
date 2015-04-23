@@ -24,6 +24,7 @@ class Process {
 class pid_t {
 	public:
 	pid_t(){};
+
 	pid_t(Frequency f, std::list<Process*>::iterator s): first(f), second(s) {};
 
 	pid_t& operator=(const pid_t&);
