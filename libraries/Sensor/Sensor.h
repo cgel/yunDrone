@@ -3,6 +3,17 @@
 
 #include "MPU6050_6Axis_MotionApps20.h"
 
+/*
+//for debugging porpuses
+#include <StandardCplusplus.h>
+#include <serstream>
+using namespace std;
+namespace std
+{
+  extern ohserialstream cout;
+}
+*/
+
 // Arduino Wire library is required if I2Cdev I2CDEV_ARDUINO_WIRE implementation
 // is used in I2Cdev.h
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
@@ -17,7 +28,7 @@ public:
 		// join I2C bus (I2Cdev library doesn't do this automatically)
 		#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
 			Wire.begin();
-			TWBR = 12; // 400kHz I2C clock (200kHz if CPU is 8MHz)
+			TWBR = 24; // 400kHz I2C clock (200kHz if CPU is 8MHz)
 		#elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
 			Fastwire::setup(400, true);
 		#endif
@@ -26,7 +37,7 @@ public:
 		mpu.initialize();
 
 		// load and configure the DMP
-		// devStatus = mpu.dmpInitialize(); // variable usefull for debuging
+		devStatus = mpu.dmpInitialize(); 
 
 		// supply your own gyro offsets here, scaled for min sensitivity
 		mpu.setXGyroOffset(220);
@@ -55,53 +66,75 @@ public:
 	}
 
 void update() {
-	Serial.println(millis());
 	// if programming failed, don't try to do anything
 	if (!dmpReady) return;
 
-	Serial.println(F("a"));
+	Serial.print(F("a")); // +
 
 	// get current FIFO count
 	fifoCount = mpu.getFIFOCount();
-	Serial.println(F("b"));
+	Serial.print(F("b"));
 
 	// check for overflow (this should never happen unless our code is too inefficient)
 	if (fifoCount == 1024) {
 		// reset so we can continue cleanly
 		mpu.resetFIFO();
-		Serial.println(F("FIFO overflow!"));
-
-	} else if (fifoCount = 0) {
-		Serial.println(F("Empty buffer"));
+		overflowCount += 1;
+	} else if (fifoCount == 0) {
+		pullEmptyMissCount += 1;
 	} else if (fifoCount < packetSize) {
-		Serial.println(F("fifoc is to small"));
+		pullMissCount += 1;
 	} else { // in this case the fifo has one or more packets
-		Serial.println(F("c"));
+		Serial.print(F("c"));
 
 		// if there are more than on packet, will read all of them and keep the newest
+		lastBuferReadCount = 0;
 		while (fifoCount >= packetSize)
 		{
 			// read a packet from FIFO
-			Serial.println(F("d"));
+			Serial.print(F("d")); // ++
 			mpu.getFIFOBytes(fifoBuffer, packetSize);
+			lastBuferReadCount += 1;
 
 			// track FIFO count here in case there is > 1 packet available
 			// (this lets us immediately read more without waiting for an interrupt)
 			fifoCount -= packetSize;
-			//fifoCount -= mpu.getFIFOCount(); // It is slower than subtracting the packet size, but in case new data comes in it will allow to read it.
+			//fifoCount = mpu.getFIFOCount(); // It is slower than subtracting the packet size, but in case new data comes in it will allow to read it.
 		}
-		Serial.println(F("e"));
+		Serial.print(F("e"));
 		// Update Quaternion, Euler angles and Yay Pich Roll angles
 		mpu.dmpGetQuaternion(&q, fifoBuffer);
 		mpu.dmpGetGravity(&gravity, &q);
 		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
 	}
+	float* ypr = get_ypr();
+	int ofc = overflowCount;
+	int pm = pullMissCount;
+	int pem = pullEmptyMissCount;
+	int rc = lastBuferReadCount;
+	//cout <<"- "<<ypr[0]<<" - "<<ypr[1]<<" - "<<ypr[2]<<" - "<<" - overflow: "<<ofc<<" - empty miss: "<<pem<<" - miss: "<<pm<<" - readCount: "<<rc<< endl;
+	//cout <<"- "<<ypr[0]<<" - "<<ypr[1]<<" - "<<ypr[2]<<" - "<<" - overflow: "<<ofc<<" - empty miss: "<<pem<<" - miss: "<<pm<<" - readCount: "<<rc<< endl;
+	Serial.print(F(" - "));
+	Serial.print(ofc);
+	Serial.print(F(" - "));
+	Serial.print(pm);
+	Serial.print(F(" - "));
+	Serial.print(pem);
+	Serial.print(F(" - "));
+	Serial.print(rc);
+
+	Serial.println(F(""));
 }
 
 	float* get_ypr()
 	{
 		return ypr;
 	}
+
+	int pullMissCount = 0;
+	int pullEmptyMissCount = 0;
+	int overflowCount = 0;
+	int lastBuferReadCount = 0;
 
 private:
 	MPU6050 mpu;
