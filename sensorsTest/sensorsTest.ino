@@ -1,5 +1,5 @@
 #include <StandardCplusplus.h>
-#include <serstream>
+//#include <serstream>
 
 #include "MPU6050_6Axis_MotionApps20.h"
 
@@ -10,7 +10,7 @@
 #include <I2Cdev.h>
 
 #include <Arduino.h>
-
+/*
 using namespace std;
 
 
@@ -20,7 +20,7 @@ namespace std
 {
   ohserialstream cout(Serial);
 }
-
+*/
 Scheduler sys;
 Sensor* sens = new Sensor();
 
@@ -32,7 +32,7 @@ class Writer: public Process {
 	void update() 
 	{
 		float* ypr = sens->get_ypr();
-		cout <<"- "<<ypr[0]<<" - "<<ypr[1]<<" - "<<ypr[2]<< endl;
+		//cout <<"- "<<ypr[0]<<" - "<<ypr[1]<<" - "<<ypr[2]<< endl;
 	};
 };
 
@@ -41,15 +41,15 @@ Writer* w = new Writer();
 void setup(void)
 {
 	Serial.begin(38400);
-	cout << "Starting sensors demo" << endl;
+	//cout << "Starting sensors demo" << endl;
 	//sensor return 0 if everything is ok
 	if(!sens->init())
 	{
-		cout << "Sensor initialized" << endl;
+		//cout << "Sensor initialized" << endl;
 		sys.addProcess(sens, _100hr);
 		sys.addProcess(w, _10hr);
 	}
-	else cout << "Sensor could not be initialized" << endl;
+	//else cout << "Sensor could not be initialized" << endl;
 }
 
 void loop(void)

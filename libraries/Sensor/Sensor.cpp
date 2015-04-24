@@ -1,5 +1,7 @@
 #include <Sensor.h>
 
+Sensor::Sensor(): mpu(), pullMissCount(0), pullEmptyMissCount(0), overflowCount(0), lastBuferReadCount(0), dmpReady(false) {}
+
 bool Sensor::init() {
 	// join I2C bus (I2Cdev library doesn't do this automatically)
 	#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
