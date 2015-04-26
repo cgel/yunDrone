@@ -12,6 +12,12 @@ Controller::init() {
 */
 }
 
+static void update_motors() {
+	roll_vel_pid.get_CV();	
+	pitch_vel_pid.get_CV();	
+	yaw_vel_pid.get_CV();	
+}
+
 Controller::update() {
 	int* rpy = sensor.get_rpy();
 	int roll = rpy[0];	
@@ -25,11 +31,11 @@ Controller::update() {
 	int roll_vel = rpy_vel[0];	
 	int pitch_vel = rpy_vel[1];
 	int yaw_vel = rpy_vel[2];	
-	int roll_force = roll_vel_pid.update(roll_vel , r_contr);	
-	int pitch_force = pitch_vel_pid.update(pitch_vel ,p_contr);	
-	int yaw_force = yaw_vel_pid.update(yaw_vel , y_contr;	
+	roll_vel_pid.update(roll_vel , r_contr);	
+	pitch_vel_pid.update(pitch_vel ,p_contr);	
+	yaw_vel_pid.update(yaw_vel , y_contr;	
 
-	// update the motors inputs
+	update_motors();
 }
 
 Controller::set_rpy_goal(int r, int p, int y) {
