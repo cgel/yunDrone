@@ -9,10 +9,16 @@ public:
 
 	void update();
 
-	void set_rpy(int r, int p, int y);
-	void set_rpy(int*); //pass an array
+	void set_rpy_goal(int r, int p, int y);
+	void set_rpy_goal(int* rpy); //pass an array
 
 private:
+	Sensor sensor;
+
+	int roll_goal;
+	int pitch_goal;
+	int yaw_goal;
+
 	PID roll_pid;	
 	PID pitch_pid;	
 	PID yaw_pid;	
