@@ -75,6 +75,7 @@ void Sensor::update() {
 			//fifoCount = mpu.getFIFOCount(); // It is slower than subtracting the packet size, but in case new data comes in it will allow to read it.
 		}
 		// Update Quaternion, Euler angles and Yay Pich Roll angles
+		mpu.dmpGetGyro(ypr_vel, fifoBuffer);
 		mpu.dmpGetQuaternion(&q, fifoBuffer);
 		mpu.dmpGetGravity(&gravity, &q);
 		mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
@@ -84,4 +85,9 @@ void Sensor::update() {
 float* Sensor::get_ypr()
 {
 	return ypr;
+}
+
+int* Sensor::get_ypr_vel()
+{
+	return ypr_vel;
 }
