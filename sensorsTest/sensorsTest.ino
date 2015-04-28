@@ -32,7 +32,8 @@ class Writer: public Process {
 	void update() 
 	{
 		float* ypr = sens->get_ypr();
-		cout <<"- "<<ypr[0]<<" - "<<ypr[1]<<" - "<<ypr[2]<< endl;
+		int* ypr_vel = sens->get_ypr_vel();
+		cout <<"- "<<ypr[0]<<" - "<<ypr[1]<<" - "<<ypr[2]<<"- "<<ypr_vel[0]<<" - "<<ypr_vel[1]<<" - "<<ypr_vel[2]<< endl;
 	};
 };
 
