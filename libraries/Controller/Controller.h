@@ -1,10 +1,13 @@
 #ifndef __CONTROLLER_H
 #define __CONTROLLER_H
 #include "Scheduler.h"
+#include "Sensor.h"
 #include "PID.h"
 
 class Controller: public Process {
 public:
+	Controller();
+
 	void init();
 
 	void update();
@@ -12,6 +15,7 @@ public:
 	void set_rpy_goal(int r, int p, int y);
 	void set_rpy_goal(int* rpy); //pass an array
 
+	bool all_good();
 private:
 	Sensor sensor;
 
@@ -26,6 +30,8 @@ private:
 	PID roll_vel_pid;	
 	PID pitch_vel_pid;	
 	PID yaw_vel_pid;	
-}
+
+	void update_motors();
+};
 
 #endif

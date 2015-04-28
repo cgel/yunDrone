@@ -1,6 +1,6 @@
-void PID::update() {
+int PID::update() {
 	// MAYBE TO DO: remove high frequency noise form the error, or the error derivative.
-	err = abs(PV - SP);
+	err = abs(PV - SPT);
 
 	// update the integral
 	err_integral += err;	
@@ -9,22 +9,12 @@ void PID::update() {
 	err_derivative = err - last_err;
 
 	CV = kp*err + ki*err_integral + kd*err_derivative;
-}
-
-void PID::update(int _PV, int _SP) {
-	set_PV(_PV);
-	set_SP(_SP);
-	update();
-}
-
-int PID::update() {
-	update();
 	return CV;
 }
 
-int PID::update(int _PV, int _SP) {
+int PID::update(int _PV, int _SPT) {
 	set_PV(_PV);
-	set_SP(_SP);
+	set_SPT(_SPT);
 	update();
 	return CV;
 }
@@ -33,8 +23,8 @@ void PID::set_PV(int _PV) {
 	PV = _PV;
 }
 
-void PID::set_SP(int _SP) {
-	SP = _SP;
+void PID::set_SPT(int _SPT) {
+	SPT = _SPT;
 }
 
 int PID::get_CV() {
@@ -63,3 +53,4 @@ void PID::reset_state() {
 	err_derivative = 0;
 	err_integral = 0;
 }
+
