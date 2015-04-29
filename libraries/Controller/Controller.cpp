@@ -15,9 +15,10 @@ void Controller::init() {
 }
 
 void Controller::update_motors() {
-	roll_vel_pid.get_CV();	
-	pitch_vel_pid.get_CV();	
-	yaw_vel_pid.get_CV();	
+	// has to be inplemented
+	float a = roll_vel_pid.get_CV();	
+	a = pitch_vel_pid.get_CV();	
+	a = yaw_vel_pid.get_CV();	
 }
 
 void Controller::update() {
@@ -25,14 +26,14 @@ void Controller::update() {
 	float yaw = ypr[0];	
 	float pitch = ypr[1];	
 	float roll = ypr[2];	
-	int r_contr = roll_pid.update(roll, roll_goal);	
-	int p_contr = pitch_pid.update(pitch, pitch_goal);	
-	int y_contr = yaw_pid.update(yaw, yaw_goal);	
+	float r_contr = roll_pid.update(roll, roll_goal);	
+	float p_contr = pitch_pid.update(pitch, pitch_goal);	
+	float y_contr = yaw_pid.update(yaw, yaw_goal);	
 
 	int* ypr_vel = sensor.get_ypr_vel();
-	int yaw_vel = ypr_vel[0];	
-	int pitch_vel = ypr_vel[1];
-	int roll_vel = ypr_vel[2];	
+	float yaw_vel = (float) ypr_vel[0];	
+	float pitch_vel = (float) ypr_vel[1];
+	float roll_vel = (float) ypr_vel[2];	
 	roll_vel_pid.update(roll_vel , r_contr);	
 	pitch_vel_pid.update(pitch_vel ,p_contr);	
 	yaw_vel_pid.update(yaw_vel , y_contr);	
@@ -40,16 +41,28 @@ void Controller::update() {
 	update_motors();
 }
 
-void Controller::set_rpy_goal(int r, int p, int y) {
+void Controller::set_rpy_goal(float r, float p, float y) {
 	roll_goal = r;
 	pitch_goal = p;
 	yaw_goal = y;
 }
 
-void Controller::set_rpy_goal(int* rpy) {
+void Controller::set_rpy_goal(float* rpy) {
 	roll_goal = rpy[0];
 	pitch_goal = rpy[1];
 	yaw_goal = rpy[2];
+}
+
+void Controller::set_y_goal(float y) {
+	yaw_goal = y;
+}
+
+void Controller::set_p_goal(float p) {
+	pitch_goal = p;
+}
+
+void Controller::set_r_goal(float r) {
+	roll_goal = r;
 }
 
 bool Controller::all_good() {
