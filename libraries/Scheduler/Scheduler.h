@@ -5,10 +5,15 @@
 #include <list>
 #include <set>
 #include <iterator>
-#include <iterator>
 #include <Arduino.h>
 
+
+// after debug remove this
+#include <serstream>
+using namespace std;
+
 typedef unsigned long millis_t;
+
 
 enum Frequency { _100hr, _50hr, _10hr, _1hr, _0p1hr};
 
@@ -20,16 +25,38 @@ class Process {
 
   virtual void call(); //The main function that must be defined when deriving this class.
 
-  operator>(Process& rhs); // has less priority
+  bool operator>(const Process& rhs); // has less priority
+  bool operator==(const Process& rhs); // compare is two processes are the same. Done comparing the call function pointers 
 
-  private:
-  millis_t ptc;  // the perfect time to call update
+  //private: // use protected and friends
+  millis_t pct;  // the perfect call time update
   millis_t tgap;  // desired time gap between calls ** function of the frequency **
   millis_t tburst;  // estimated call duration
+  short unsigned int n;
 };
 
+
+
+
 // pid here means process identifier
-typedef Process& pid_t;
+class  pid_t
+{
+  public:
+  pid_t();
+  pid_t(Process*);
+  Process& operator*();
+  Process* operator->();
+  bool operator==(const pid_t& rhs);
+  bool operator<(const pid_t& rhs);
+  Process* proc;
+};
+
+
+
+typedef std::multiset<pid_t> ppq_t; // processes priority queue
+
+typedef std::multiset<pid_t>::iterator ppq_iter_t; // processes priority queue
+//typedef std::multiset<pid_t>::const_iterator ppq_citer_t; // processes priority queue
 
 class Scheduler {
 	// pid here means process identifier
@@ -38,14 +65,14 @@ class Scheduler {
 	~Scheduler();
 
 	pid_t addProcess(Process& pr, const Frequency freq);
-	void killProcess(const pid_t& pid);
+	bool killProcess(const pid_t pid);
 
 	void loop();
 
-	private:
-	std::multiset<pid_t, std::greater> ppq; // processes priority queue
-
 	millis_t time;
+	private:
+  ppq_t ppq; // processes priority queue
+
 	millis_t last_call_time;
 };
 

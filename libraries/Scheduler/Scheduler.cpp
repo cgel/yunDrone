@@ -1,7 +1,7 @@
 #include <Scheduler.h> 
 
-// CLASS SCHEDULER
-Scheduler::Scheduler(): 
+// ------ CLASS SCHEDULER ----------
+Scheduler::Scheduler() 
 {	
 }
 
@@ -12,23 +12,23 @@ Scheduler::~Scheduler()
 
 pid_t Scheduler::addProcess(Process& pr, const Frequency freq)
 {
-  ppq->insert(pr);
+  ppq.insert(&pr);
 
   //pr is a reference to the process, pid_t is also;
-	return pr;
+	return &pr;
 }
 
-void Scheduler::killProcess(const pid_t& pid)
+bool Scheduler::killProcess(pid_t pid)
 {
-	processes[pid.first].erase(pid.second);
   // there is a chanse that ppq might return +1 possible values. see multiset doc
-  std::pair<auto, auto> rng = ppq.equal_range(pid);
+  //std::pair<ppq_iter_t, ppq_iter_t> rng = ppq.equal_range(pid);
+  auto rng = ppq.equal_range(pid);
   for(;rng.first !=rng.second; ++(rng.first) )
   {
-    if(rng.first == pid)
+    if( *(rng.first) == pid)
     {
-      ppq.remove(rng.first);
-      println("pid deleted");
+      ppq.erase(rng.first);
+      cout << "pid deleted" << endl;
     }
   }
 }
@@ -41,16 +41,59 @@ beg:
 	time = millis();	
 
   // high priority process
-  auto iter  = ppq.cbegin();
-  auto hpp  = *iter;
+  ppq_iter_t iter  = ppq.begin();
 
-  if( ->pct > time)
+  pid_t hpp  = *iter;
+
+  if( hpp->pct > time)
   {
     hpp->call();
-    ppq.remove(iter);
+    ppq.erase(iter);
     hpp->pct = hpp->tgap + time;
     ppq.insert(hpp);
   }
 
   goto beg;
 }
+
+
+// ------------ CLASS PROCESS ---------
+bool Process::operator>(const Process& rhs)
+{
+  return pct > rhs.pct;
+}
+
+bool Process::operator==(const Process& rhs)
+{
+  return n == rhs.n;
+}
+
+
+// ------------- CLASS PID_T -------------------
+pid_t::pid_t() {}
+
+pid_t::pid_t(Process* p)
+{
+  proc = p;
+}
+
+Process& pid_t::operator*()
+{
+  return *proc;
+}
+
+Process* pid_t::operator->()
+{
+  return proc;
+}
+
+bool pid_t::operator==(const pid_t& rhs)
+{
+  return proc->n == rhs.proc->n;
+}
+
+bool pid_t::operator<(const pid_t& rhs)
+{
+  return proc->pct > rhs.proc->pct;
+}
+

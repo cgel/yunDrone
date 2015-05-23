@@ -1,4 +1,7 @@
 #include <StandardCplusplus.h>
+#include <list>
+#include <set>
+#include <iterator>
 #include <serstream>
 #include <string>
 #include "Scheduler.h"
@@ -12,7 +15,7 @@ class Helloer: public Process {
 	Helloer(const char * str): msg(str) {};
 	~Helloer(){};
 
-	void update() {cout << "Hello my message is:" << msg << endl;};
+	void call() {cout << "Hello my message is:" << msg << endl;};
 
 	private:
 	string msg;
@@ -28,7 +31,7 @@ namespace std
 Scheduler sys;
 Helloer* h1 = new Helloer("xx");
 Helloer* h2 = new Helloer("-- xx");
-Helloer* h3 = new Helloer("-- -- xx");
+Helloer h3 ("-- -- xx");
 
 void setup(void)
 {
@@ -36,14 +39,16 @@ void setup(void)
 
 	cout << "Starting Scheduler demo" << endl;
 
-	sys.addProcess(h1, _1hr);
-	sys.addProcess(h2, _10hr);
-	sys.addProcess(h3, _50hr);
+	sys.addProcess(*h1, _1hr);
+	sys.addProcess(*h2, _10hr);
+	sys.addProcess(h3, _50hr); //h3 not a pointer
+
+
+	sys.loop();
 }
 
 void loop(void)
 {
-	sys.update();
 }
 
 // vim:cin:ai:sts=2 sw=2 ft=cpp
