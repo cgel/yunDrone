@@ -22,7 +22,7 @@ bool Scheduler::killProcess(pid_t pid)
 {
   // there is a chanse that ppq might return +1 possible values. see multiset doc
   //std::pair<ppq_iter_t, ppq_iter_t> rng = ppq.equal_range(pid);
-  auto rng = ppq.equal_range(pid);
+  std::pair<ppq_iter_t, ppq_iter_t> rng = ppq.equal_range(pid);
   for(;rng.first !=rng.second; ++(rng.first) )
   {
     if( *(rng.first) == pid)
@@ -58,12 +58,12 @@ beg:
 
 
 // ------------ CLASS PROCESS ---------
-bool Process::operator>(const Process& rhs)
+bool Process::operator>(const Process& rhs) const
 {
   return pct > rhs.pct;
 }
 
-bool Process::operator==(const Process& rhs)
+bool Process::operator==(const Process& rhs) const
 {
   return n == rhs.n;
 }
@@ -77,22 +77,22 @@ pid_t::pid_t(Process* p)
   proc = p;
 }
 
-Process& pid_t::operator*()
+Process& pid_t::operator*() const
 {
   return *proc;
 }
 
-Process* pid_t::operator->()
+Process* pid_t::operator->() const
 {
   return proc;
 }
 
-bool pid_t::operator==(const pid_t& rhs)
+bool pid_t::operator==(const pid_t& rhs) const
 {
   return proc->n == rhs.proc->n;
 }
 
-bool pid_t::operator<(const pid_t& rhs)
+bool pid_t::operator<(const pid_t& rhs) const
 {
   return proc->pct > rhs.proc->pct;
 }

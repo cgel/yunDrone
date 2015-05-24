@@ -2,9 +2,9 @@
 #define __SCHEDULER_H
 
 #include <StandardCplusplus.h>
-#include <list>
+//#include <list>
 #include <set>
-#include <iterator>
+//#include <iterator>
 #include <Arduino.h>
 
 
@@ -25,8 +25,8 @@ class Process {
 
   virtual void call(); //The main function that must be defined when deriving this class.
 
-  bool operator>(const Process& rhs); // has less priority
-  bool operator==(const Process& rhs); // compare is two processes are the same. Done comparing the call function pointers 
+  bool operator>(const Process& rhs) const; // has less priority
+  bool operator==(const Process& rhs) const; // compare is two processes are the same. Done comparing the call function pointers 
 
   //private: // use protected and friends
   millis_t pct;  // the perfect call time update
@@ -44,10 +44,10 @@ class  pid_t
   public:
   pid_t();
   pid_t(Process*);
-  Process& operator*();
-  Process* operator->();
-  bool operator==(const pid_t& rhs);
-  bool operator<(const pid_t& rhs);
+  Process& operator*() const;
+  Process* operator->() const;
+  bool operator==(const pid_t& rhs) const;
+  bool operator<(const pid_t& rhs) const;
   Process* proc;
 };
 
