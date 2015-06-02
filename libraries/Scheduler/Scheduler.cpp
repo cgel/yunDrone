@@ -1,14 +1,6 @@
 #include "Scheduler.h"
 
 // ------ CLASS SCHEDULER ----------
-Scheduler::Scheduler() 
-{	
-}
-
-Scheduler::~Scheduler()
-{
-	// this class manages mem in the free store but no need to bother deleting it since this class will never be destroied
-}
 
 ProcessHandle Scheduler::addProcess(const Process& pr, millis_t m)
 {
@@ -63,4 +55,11 @@ bool Process::operator>(const Process& rhs) const
 bool Process::operator==(const Process& rhs) const
 {
   return pid == rhs.pid;
+}
+
+
+
+bool operator>(Process* a, Process* b);
+{
+  return *a > *b;
 }

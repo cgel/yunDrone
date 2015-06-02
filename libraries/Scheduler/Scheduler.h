@@ -12,6 +12,7 @@ typedef unsigned long millis_t;
 
 // derive from this class to create a usable process
 class Process {
+  friend class Scheduler;
   public:
   Process() {};
   //virtual ~Process() = 0;
@@ -23,6 +24,7 @@ class Process {
   bool operator>(const Process& rhs) const; // has less priority
   bool operator==(const Process& rhs) const; // compare is two processes are the same. Done comparing the call function pointers 
 
+  private:
   //private: // use protected and friends
   millis_t pct;  // the perfect call time update
   millis_t tgap;  // desired time gap between calls ** function of the frequency **
@@ -37,22 +39,21 @@ class Process {
 
 // pid here means process identifier
 typedef Process* ProcessHandle;
+bool operator>(Process*, Process*);
+
 
 
 class Scheduler {
 	// pid here means process identifier
 	public:
-	Scheduler();	
-	~Scheduler();
-
 	ProcessHandle addProcess(Process& pr, millis_t);
-	bool killProcess(const ProcessHandle handle);
+	bool killProcess(const* Process proc);
 
 	void loop();
 
 	millis_t time;
 	private:
-  heap ppq; // processes priority queue
+  Heap<Process*> ppq; // processes priority queue
 
 	millis_t last_call_time;
 };
