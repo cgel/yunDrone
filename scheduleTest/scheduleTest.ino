@@ -1,10 +1,5 @@
-#include <StandardCplusplus.h>
-#include <list>
-#include <set>
-#include <iterator>
-#include <serstream>
-#include <string>
 #include "Scheduler.h"
+#include "Heap.h"
 #include <Arduino.h>
 
 using namespace std;
@@ -15,21 +10,15 @@ class Helloer: public Process {
 	Helloer(const char * str): msg(str) {};
 	~Helloer(){};
 
-	void call() {cout << "Hello my message is:" << msg << endl;};
+	//void call() {cout << "Hello my message is:" << msg << endl;};
+	void call() {Serial.print(msg);};
 
 	private:
-	string msg;
+	const char *msg;
 };
 
-// <iostream> declares cout/cerr, but the application must define them
-// because it's up to you what to do with them.
-namespace std
-{
-  ohserialstream cout(Serial);
-}
-
 Scheduler sys;
-Helloer* h1 = new Helloer("xx");
+Helloer* h1 = new Helloer("a\n");
 Helloer* h2 = new Helloer("-- xx");
 Helloer h3 ("-- -- xx");
 
@@ -37,12 +26,13 @@ void setup(void)
 {
 	Serial.begin(115200);
 
-	cout << "Starting Scheduler demo" << endl;
+	//cout << "Starting Scheduler demo" << endl;
 
-	sys.addProcess(*h1, _1hr);
-	sys.addProcess(*h2, _10hr);
-	sys.addProcess(h3, _50hr); //h3 not a pointer
+	sys.addProcess(*h1, 5000);
+	//sys.addProcess(*h2, 3000);
+	//sys.addProcess(h3,  20); //h3 not a pointer
 
+	Serial.begin(115200);
 
 	sys.loop();
 }
