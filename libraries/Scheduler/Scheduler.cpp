@@ -1,4 +1,3 @@
-#include "Scheduler.h"
 
 // ------ CLASS SCHEDULER ----------
 
@@ -31,12 +30,6 @@ beg:
   // find the process with the highest priority
   ProcessHandle h  = ppq.top();
 
-  /*
-  ppq.print();
-  Serial.print(" ");
-  Serial.print(time);
-  Serial.print("\n");
-  */
   // is it time to call?
   if( h->pct < time)
   {
@@ -46,12 +39,9 @@ beg:
 
     if(h->callAgain == true)
     {
-      //Serial.print("call ");
-      h->pct = h->tgap + time;
-      //Serial.print(h->pct);
       h->call();
+      h->pct = h->tgap + time;
       ppq.insert(h);
-      Serial.print("\n");
     }
   }
   goto beg;
@@ -59,15 +49,6 @@ beg:
 
 
 // ------------ CLASS PROCESS ---------
-/*
-bool Process::operator<(const Process& rhs) const
-{
-  bool b;
-  if(pct < rhs.pct) b = true;
-  else b = (pid < rhs.pid);
-  return b;
-}
-*/
 
 bool Process::operator<(const Process& rhs) const
 {

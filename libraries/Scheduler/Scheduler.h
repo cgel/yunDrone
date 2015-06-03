@@ -18,8 +18,6 @@ class Process {
   Process() {};
   //virtual ~Process() = 0;
 
-  pid_t pid;
-
   virtual void call(); //The main function that must be defined when deriving this class.
 
   bool priorityCompare( const Process& rhs) const;
@@ -27,8 +25,9 @@ class Process {
   bool operator<(const Process& rhs) const; // has less priority
   bool operator==(const Process& rhs) const; // compare is two processes are the same. Done comparing the call function pointers 
 
-//  private:
+  private:
   //private: // use protected and friends
+  pid_t pid;
   millis_t pct;  // the perfect call time update
   millis_t tgap;  // desired time gap between calls ** function of the frequency **
   millis_t tburst;  // estimated call duration
@@ -41,15 +40,6 @@ class Process {
 
 // pid here means process identifier
 typedef Process* ProcessHandle;
-
-/*
-struct ProcessHandleComp {
-  bool operator()(const ProcessHandle lhs, const ProcessHandle rhs)
-  {
-    return *lhs < *rhs;
-  }
-};
-*/
 
 struct ProcessHandleComp {
   bool operator()(const ProcessHandle lhs, const ProcessHandle rhs)
@@ -73,23 +63,6 @@ class Scheduler {
 
 	millis_t last_call_time;
 };
-
-
-template<>
-inline void Heap<ProcessHandle, ProcessHandleComp>::print()
-{
-  Serial.print("(");
-  for(int i = 0; i!= space; i++)
-  {
-    Serial.print(elem[i]->pid);
-    Serial.print(" ");
-    Serial.print(elem[i]->pct);
-    Serial.print(" - ");
-    //Serial.print(space);
-  }
-  Serial.print(")");
-}
-
 
 
 #endif
