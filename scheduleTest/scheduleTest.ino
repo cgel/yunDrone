@@ -3,7 +3,6 @@
 #include <Arduino.h>
 
 using namespace std;
-
 class Talker: public Process {
 	public:
 	//void call() {cout << "Hello my message is:" << msg << endl;};
