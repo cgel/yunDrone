@@ -30,8 +30,9 @@ private:
   bool biasValid;
   bool prevBiasValid;
 
-	float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
-	int ypr_vel[3];          // [yaw, pitch, roll]   yaw/pitch/roll
+	//float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+	float rpy[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+	//int ypr_vel[3];          // [yaw, pitch, roll]   yaw/pitch/roll
 };
 
 #endif

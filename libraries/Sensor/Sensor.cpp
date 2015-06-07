@@ -32,12 +32,23 @@ void Sensor::call()
     prevBiasValid = biasValid;
 
     fusion.newIMUData(imu->getGyro(), imu->getAccel(), imu->getCompass(), imu->getTimestamp());
+
+    const RTVector3& fus = fusion.getFusionPose();
+    rpy[0] = fus.x();
+    rpy[1] = fus.y();
+    rpy[2] = fus.z();
   }
+
 }
 
 void Sensor::print()
 {  
-    RTMath::displayRollPitchYaw("Pose:", (RTVector3&)fusion.getFusionPose()); // fused output
+    Serial.print("roll: ");
+    Serial.print(rpy[0]);
+    Serial.print("  pitch: ");
+    Serial.print(rpy[1]);
+    Serial.print("  yaw: ");
+    Serial.print(rpy[2]);
     Serial.println();
 }
 
