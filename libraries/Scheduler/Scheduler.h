@@ -56,8 +56,10 @@ class Scheduler {
 
 	void loop();
 
-	millis_t time;
+  millis_t getTime();
+
 	private:
+	millis_t time;
   Heap<ProcessHandle, ProcessHandleComp> ppq; // processes priority queue
   pid_t pid_count;
 

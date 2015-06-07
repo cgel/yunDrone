@@ -48,6 +48,9 @@ beg:
   goto beg;
 }
 
+millis_t Scheduler::getTime() {
+  return time;
+}
 
 // ------------ CLASS PROCESS ---------
 
