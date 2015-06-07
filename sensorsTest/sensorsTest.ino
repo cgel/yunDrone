@@ -43,7 +43,7 @@ void setup()
 {
 	Serial.begin(38400);
   sys.addProcess(sens, 20);
-  sys.addProcess(tlkr, 1000);
+  sys.addProcess(tlkr, 200);
   sens.init();
 }
 
