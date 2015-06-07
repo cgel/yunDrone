@@ -1,9 +1,5 @@
-#include <StandardCplusplus.h>
-#include <serstream>
-
-#include "MPU6050_6Axis_MotionApps20.h"
-
 #include "Scheduler.h"
+#include "Heap.h"
 #include "Sensor.h"
 
 #include <Wire.h>
@@ -11,49 +7,47 @@
 
 #include <Arduino.h>
 
-using namespace std;
-
-
-// <iostream> declares cout/cerr, but the application must define them
-// because it's up to you what to do with them.
-namespace std
-{
-  ohserialstream cout(Serial);
-}
+#include "RTIMUSettings.h"
+#include "RTIMU.h"
+#include "RTFusionRTQF.h" 
+#include "CalLib.h"
+#include <EEPROM.h>
 
 Scheduler sys;
-Sensor* sens = new Sensor();
 
-class Writer: public Process {
+Sensor sens;
+
+class Talker: public Process {
 	public:
-	Writer() {};
-	~Writer(){};
+	//void call() {cout << "Hello my message is:" << msg << endl;};
+	void call() {
+  if(!sens.ready()){
+    Serial.println("sensor not ready");
+    return;
+  }
+  sens.print();
+  };
 
-	void update() 
-	{
-		float* ypr = sens->get_ypr();
-		int* ypr_vel = sens->get_ypr_vel();
-		cout <<"- "<<ypr[0]<<" - "<<ypr[1]<<" - "<<ypr[2]<<"- "<<ypr_vel[0]<<" - "<<ypr_vel[1]<<" - "<<ypr_vel[2]<< endl;
-	};
+  void set_msg(const char* str, int _m)
+  {
+    msg = str;
+    m = _m;
+  }
+
+	private:
+        int m;
+	const char *msg;
 };
-
-Writer* w = new Writer();
-
-void setup(void)
+Talker tlkr;
+void setup()
 {
 	Serial.begin(38400);
-	cout << "Starting sensors demo" << endl;
-	//sensor return 0 if everything is ok
-	if(!sens->init())
-	{
-		//cout << "Sensor initialized" << endl;
-		sys.addProcess(sens, _100hr);
-		sys.addProcess(w, _10hr);
-	}
-	else cout << "Sensor could not be initialized" << endl;
+  sys.addProcess(sens, 20);
+  sys.addProcess(tlkr, 1000);
+  sens.init();
 }
 
 void loop(void)
 {
-	sys.update();
+  sys.loop();
 }
