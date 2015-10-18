@@ -1,4 +1,5 @@
 #include "Scheduler.h"
+#include <sys/time.h>
 
 // ------ CLASS SCHEDULER ----------
 
@@ -7,18 +8,19 @@ ProcessHandle Scheduler::addProcess(Process& pr, millis_t m)
   pr.callAgain = true;
   pr.tgap = m;
   pr.pct = 0;
-  pr.pid = ++pid_count;
+  pr.id = ++id_count;
 
   ppq.insert(&pr);
   ProcessHandle h = ppq.top();
-  //pr is a reference to the process, pid_t is also;
+  //pr is a reference to the process, id_t is also;
 	return &pr;
 }
 
 bool Scheduler::killProcess(ProcessHandle proch) 
 {
-  pid_count = 0;
+  id_count = 0;
   proch->callAgain = false;
+  return true;
 }
 
 void Scheduler::loop()
@@ -61,5 +63,5 @@ bool Process::operator<(const Process& rhs) const
 
 bool Process::operator==(const Process& rhs) const
 {
-  return pid == rhs.pid;
+  return id == rhs.id;
 }
