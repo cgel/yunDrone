@@ -31,14 +31,11 @@ class Process {
                                               // the same. Done comparing the
                                               // call function pointers
 
- private:
-  // private: // use protected and friends
+ protected: 
   id_t id;
   millis_t pct;   // the perfect call time update
   millis_t tgap;  // desired time gap between calls ** function of the frequency
-                  // **
   millis_t tburst;  // estimated call duration
-
   bool callAgain;
 };
 
@@ -52,9 +49,8 @@ struct ProcessHandleComp {
 };
 
 class Scheduler {
-  // id here means process identifier
  public:
-Scheduler():id_count(0) {};
+  Scheduler():id_count(0) {};
   ProcessHandle addProcess(Process& pr, millis_t);
   bool killProcess(ProcessHandle proc);
 

@@ -30,7 +30,6 @@ bool Scheduler::killProcess(ProcessHandle proch)
 
 void Scheduler::loop()
 {
-beg:
 	// keep a base "call clock" of a 100hr
 	// Lower frequency calls +++ count of a base 
 	time = millis();	
@@ -52,7 +51,6 @@ beg:
       ppq.insert(h);
     }
   }
-  goto beg;
 }
 
 millis_t Scheduler::getTime() {
@@ -60,10 +58,8 @@ millis_t Scheduler::getTime() {
 }
 
 // ------------ CLASS PROCESS ---------
-
 bool Process::operator<(const Process& rhs) const
 {
-  std::cout << pct << " -- " << rhs.pct << std::endl;
   return pct < rhs.pct;
 }
 
