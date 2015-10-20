@@ -6,7 +6,6 @@
 #include <Arduino.h>
 #else
 #include "fake_millis.h" 
-Millis millis;
 #endif
 
 #include "Heap.h"
@@ -20,9 +19,9 @@ class Process {
 
  public:
   Process() {};
-  // virtual ~Process() = 0;
+  virtual ~Process() {};
 
-  virtual void call();  // The main function that must be defined when deriving
+  virtual void call() = 0;  // The main function that must be defined when deriving
                         // this class.
 
   bool priorityCompare(const Process& rhs) const;
@@ -55,6 +54,7 @@ struct ProcessHandleComp {
 class Scheduler {
   // id here means process identifier
  public:
+Scheduler():id_count(0) {};
   ProcessHandle addProcess(Process& pr, millis_t);
   bool killProcess(ProcessHandle proc);
 

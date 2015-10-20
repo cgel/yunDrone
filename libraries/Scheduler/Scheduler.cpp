@@ -1,5 +1,10 @@
 #include "Scheduler.h"
 #include <sys/time.h>
+#include <iostream>
+
+#ifdef _PC
+Millis millis;
+#endif
 
 // ------ CLASS SCHEDULER ----------
 
@@ -58,6 +63,7 @@ millis_t Scheduler::getTime() {
 
 bool Process::operator<(const Process& rhs) const
 {
+  std::cout << pct << " -- " << rhs.pct << std::endl;
   return pct < rhs.pct;
 }
 
