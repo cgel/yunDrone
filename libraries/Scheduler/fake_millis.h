@@ -3,6 +3,8 @@
 #include <sys/time.h>
 #include <cstddef>
 
+typedef unsigned long millis_t;
+
 class Millis {
  private:
   long int start_millis;
