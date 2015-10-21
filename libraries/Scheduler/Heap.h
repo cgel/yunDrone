@@ -1,6 +1,9 @@
 #ifndef __HEAP_H
 #define __HEAP_H
 #define NEW_BUFF_TRIGGER 5 
+#ifdef __PC
+#include <iostream>
+#endif
 
 template <class T> struct Greater {
   bool operator()(const T &lhs, const T &rhs) { return lhs > rhs; }
