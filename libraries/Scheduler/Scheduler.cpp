@@ -8,20 +8,20 @@ Millis millis;
 
 // ------ CLASS SCHEDULER ----------
 
-ProcessHandle Scheduler::addProcess(Process& pr, millis_t m)
+Process* Scheduler::addProcess(Process& pr, millis_t m)
 {
   pr.callAgain = true;
   pr.tgap = m;
   pr.pct = 0;
   pr.id = ++id_count;
 
-  ppq.insert(&pr);
-  ProcessHandle h = ppq.top();
+  process_priority_queue.insert(&pr);
+  Process* h = process_priority_queue.top();
   //pr is a reference to the process, id_t is also;
 	return &pr;
 }
 
-bool Scheduler::killProcess(ProcessHandle proch) 
+bool Scheduler::killProcess(Process* proch) 
 {
   id_count = 0;
   proch->callAgain = false;
@@ -30,25 +30,22 @@ bool Scheduler::killProcess(ProcessHandle proch)
 
 void Scheduler::loop()
 {
-	// keep a base "call clock" of a 100hr
-	// Lower frequency calls +++ count of a base 
 	time = millis();	
-
-  // find the process with the highest priority
-  ProcessHandle h  = ppq.top();
+  Process* highest_priority_process  = process_priority_queue.top();
 
   // is it time to call?
-  if( h->pct < time)
+  if( highest_priority_process->pct < time)
   {
-    //Serial.print("pop");
-    //ppq.print();
-    ppq.pop();
+#ifdef __PC
+    process_priority_queue.print();
+#endif
+    process_priority_queue.pop();
 
-    if(h->callAgain == true)
+    if(highest_priority_process->callAgain == true)
     {
-      h->call();
-      h->pct = h->tgap + time;
-      ppq.insert(h);
+      highest_priority_process->call();
+      highest_priority_process->pct = highest_priority_process->tgap + time;
+      process_priority_queue.insert(highest_priority_process);
     }
   }
 }
@@ -58,12 +55,13 @@ millis_t Scheduler::getTime() {
 }
 
 // ------------ CLASS PROCESS ---------
-bool Process::operator<(const Process& rhs) const
-{
-  return pct < rhs.pct;
+bool GreaterPriorityComparator::operator()(const Process* lhs, const Process* rhs){
+  return lhs->pct < rhs->pct;
 }
 
-bool Process::operator==(const Process& rhs) const
-{
-  return id == rhs.id;
+#ifdef __PC
+std::ostream& operator<<(std::ostream& o, Process* proc){
+  o<< "process " << proc->id << " next call time is " << proc->pct <<std::endl;
+  return o;
 }
+#endif

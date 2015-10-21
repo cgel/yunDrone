@@ -10,9 +10,8 @@
 
 #include "Heap.h"
 
-typedef unsigned long millis_t;
-
 typedef short unsigned int id_t;
+
 // derive from this class to create a usable process
 class Process {
   friend class Scheduler;
@@ -24,12 +23,12 @@ class Process {
   virtual void call() = 0;  // The main function that must be defined when deriving
                         // this class.
 
-  bool priorityCompare(const Process& rhs) const;
+  friend class GreaterPriorityComparator;
 
+#ifdef __PC
+  friend std::ostream& operator<<(std::ostream& o, Process* proc);
+#endif
   bool operator<(const Process& rhs) const;   // has less priority
-  bool operator==(const Process& rhs) const;  // compare is two processes are
-                                              // the same. Done comparing the
-                                              // call function pointers
 
  protected: 
   id_t id;
@@ -39,20 +38,20 @@ class Process {
   bool callAgain;
 };
 
-// id here means process identifier
-typedef Process* ProcessHandle;
-
-struct ProcessHandleComp {
-  bool operator()(const ProcessHandle lhs, const ProcessHandle rhs) {
-    return *lhs < *rhs;
-  }
+class GreaterPriorityComparator {
+  public:
+  bool operator()(const Process* lhs, const Process* rhs);
 };
+
+#ifdef __PC
+std::ostream& operator<<(std::ostream& o, Process* proc);
+#endif
 
 class Scheduler {
  public:
   Scheduler():id_count(0) {};
-  ProcessHandle addProcess(Process& pr, millis_t);
-  bool killProcess(ProcessHandle proc);
+  Process* addProcess(Process& pr, millis_t);
+  bool killProcess(Process* proc);
 
   void loop();
 
@@ -60,10 +59,11 @@ class Scheduler {
 
  private:
   millis_t time;
-  Heap<ProcessHandle, ProcessHandleComp> ppq;  // processes priority queue
+  Heap<Process*, GreaterPriorityComparator> process_priority_queue;  // processes priority queue
   id_t id_count;
 
   millis_t last_call_time;
 };
+
 
 #endif
