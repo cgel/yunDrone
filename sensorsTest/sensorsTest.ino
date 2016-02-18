@@ -11,34 +11,23 @@
 #include "RTIMU.h"
 #include "RTFusionRTQF.h" 
 #include "CalLib.h"
-#include <EEPROM.h>
-
-Scheduler sys;
-
-Sensor sens;
 
 class Talker: public Process {
 	public:
-	//void call() {cout << "Hello my message is:" << msg << endl;};
 	void call() {
-  if(!sens.ready()){
-    Serial.println("sensor not ready");
-    return;
-  }
-  sens.print();
+    if(!sens.ready()){
+      Serial.println("sensor not ready");
+      return;
+    } else {
+      sens.print();
+    }
   };
-
-  void set_msg(const char* str, int _m)
-  {
-    msg = str;
-    m = _m;
-  }
-
-	private:
-        int m;
-	const char *msg;
 };
+
+Scheduler sys;
+Sensor sens;
 Talker tlkr;
+
 void setup()
 {
 	Serial.begin(38400);
